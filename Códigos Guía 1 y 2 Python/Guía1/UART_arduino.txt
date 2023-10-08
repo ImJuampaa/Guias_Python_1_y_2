@@ -1,0 +1,11 @@
+void setup() {
+Serial.begin(9600); // Configura la comunicacion serie a 9600 baudios
+}
+
+void loop() {
+  String characterToSend = "usb"; // Caracter que se enviara, puedes cambiarlo segun tus necesidades
+  
+  // Envia el caracter a traves de la comunicacion serie
+  Serial.println(characterToSend);
+  delay(1000); // Espera un segundo antes de enviar el proximo caracter
+}

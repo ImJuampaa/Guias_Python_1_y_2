@@ -1,0 +1,21 @@
+#include <Wire.h>
+
+#define SLAVE_ADDRESS 0x08 // Direccion I2C del Arduino esclavo
+
+void setup() {
+  Wire.begin(SLAVE_ADDRESS); // Inicializa el Arduino como esclavo I2C con la direccion especificada
+  Wire.onRequest(requestEvent); // Configura la funcion de solicitud de datos
+  randomSeed(analogRead(0)); // Inicializa el generador de numeros aleatorios
+  Serial.begin(9600); // Inicializa la comunicacion serial para ver los numeros generados en el monitor serial
+}
+
+void loop() {
+}
+
+void requestEvent() {
+  int numeroAleatorio = random(0, 100); // Genera un numero aleatorio entre 0 y 99
+  Wire.write(numeroAleatorio); // Envia el numero aleatorio al maestro I2C (Raspberry Pi)
+  Serial.print("Enviado: ");
+  Serial.println(numeroAleatorio);
+  delay(1000); // Espera un segundo antes de enviar otro numero aleatorio
+}

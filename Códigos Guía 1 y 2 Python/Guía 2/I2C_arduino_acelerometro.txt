@@ -1,0 +1,61 @@
+#include <Wire.h> // Se incluye la libreria usada para comunicacion I27C
+const int MPU = 0x68;       // Direccion I2C del MPU
+float AccX, AccY, AccZ;     //Variables donde se almacenaran las aceleraciones
+float GyroX, GyroY, GyroZ;  //Variables donde se almacenaran las rotaciones
+void setup() {
+  Serial.begin(19200);
+  Wire.begin();                 //Inicia comunicacion I2C
+  Wire.beginTransmission(MPU);  // Comienza comunicacion con el MPU
+  Wire.write(0x6B);             // Se dirige al registro 6B
+  Wire.write(0x00);             // Resetea el registro aplicando 0
+  Wire.endTransmission(true);   // Finaliza transmision I2C
+}
+void loop() {
+  aceleracion();
+  giroscopio();
+  Serial.print("Ax:");
+  Serial.print(" ");
+  Serial.print(AccX);
+  Serial.print(" ");
+  Serial.print("Ay:");
+  Serial.print(" ");
+  Serial.print(AccY);
+  Serial.print(" ");
+  Serial.print("Az:");
+  Serial.print(" ");
+  Serial.print(AccZ);
+  Serial.print(" ");
+  Serial.print("Gx:");
+  Serial.print(" ");
+  Serial.print(GyroX);
+  Serial.print(" ");
+  Serial.print("Gy:");
+  Serial.print(" ");
+  Serial.print(GyroY);
+  Serial.print(" ");
+  Serial.print("Gz:");
+  Serial.print(" ");
+  Serial.println(GyroZ);
+  delay(1000);
+}
+void aceleracion(){
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B); // Comienza con el registro 0x3B (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 6, true); // Lee 6 registros en total, 2 por cada valor de //eje (16 bit)
+  AccX = (Wire.read() << 8 | Wire.read()); // X-axis value
+  AccY = (Wire.read() << 8 | Wire.read()); // Y-axis value
+  AccZ = (Wire.read() << 8 | Wire.read()); // Z-axis value
+}
+void giroscopio(){
+  Wire.beginTransmission(MPU);
+  Wire.write(0x43); // Datos de giroscopio desde el registro 0x43
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, 6, true); // Lee 4 registros en total, 2 por cada valor de //eje (16 bit)
+  GyroX = (Wire.read() << 8 | Wire.read()) / 131.0; // Convierte el valor a deg/s
+  GyroY = (Wire.read() << 8 | Wire.read()) / 131.0; // Convierte el valor a deg/s
+  GyroZ = (Wire.read() << 8 | Wire.read()) / 131.0; // Convierte el valor a deg/s
+  GyroX = GyroX + 0.56; // GyroErrorX ~(-0.56)
+  GyroY = GyroY - 2; // GyroErrorY ~(2)
+  GyroZ = GyroZ + 0.79; // GyroErrorZ ~ (-0.8)
+}
